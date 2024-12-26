@@ -1,6 +1,7 @@
 // App.js
 import React, { useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { 
   Provider as PaperProvider, 
@@ -15,9 +16,11 @@ import {
   Portal, 
   TextInput 
 } from 'react-native-paper';
-import { View, StyleSheet, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 const theme = {
   ...DefaultTheme,
@@ -39,7 +42,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Appbar Header */}
-      <Appbar.Header>
+      <Appbar.Header style={styles.appbar}>
         <Appbar.Content title="Home" />
         <Appbar.Action 
           icon="magnify" 
@@ -47,7 +50,7 @@ const HomeScreen = ({ navigation }) => {
         />
       </Appbar.Header>
 
-      {/* Konten Utama */}
+      {/* Main Content */}
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>
           <Card.Title title="Welcome to Our App!" />
@@ -57,18 +60,20 @@ const HomeScreen = ({ navigation }) => {
             </Text>
           </Card.Content>
           <Card.Actions>
-            <Button 
-              mode="contained" 
-              style={styles.button}
-              onPress={() => navigation.navigate('Details')}
-            >
-              Explore Details
-            </Button>
+            <TouchableOpacity>
+              <Button 
+                mode="contained" 
+                style={styles.button}
+                onPress={() => navigation.navigate('Details')}
+              >
+                Explore Details
+              </Button>
+            </TouchableOpacity>
           </Card.Actions>
         </Card>
       </ScrollView>
 
-      {/* Dialog Pencarian */}
+      {/* Search Dialog */}
       <Portal>
         <Dialog visible={searchVisible} onDismiss={() => setSearchVisible(false)}>
           <Dialog.Title>Search</Dialog.Title>
@@ -95,12 +100,12 @@ const DetailsScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Appbar Header */}
-      <Appbar.Header>
+      <Appbar.Header style={styles.appbar}>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title="Details" />
       </Appbar.Header>
 
-      {/* Konten Utama */}
+      {/* Main Content */}
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>
           <Card.Title title="Details & Insights" />
@@ -136,12 +141,53 @@ const DetailsScreen = ({ navigation }) => {
   );
 };
 
+const SearchScreen = () => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Search Screen</Text>
+    </View>
+  );
+};
+
+const SettingsScreen = () => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>Settings Screen</Text>
+    </View>
+  );
+};
+
+const HomeTabNavigator = () => {
+  return (
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+          if (route.name === 'Home') {
+            iconName = 'home';
+          } else if (route.name === 'Search') {
+            iconName = 'search';
+          } else if (route.name === 'Settings') {
+            iconName = 'settings';
+          }
+          return <Icon name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Search" component={SearchScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
+  );
+};
+
 export default function App() {
   return (
     <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Home" component={HomeTabNavigator} />
           <Stack.Screen name="Details" component={DetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
@@ -149,11 +195,13 @@ export default function App() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  appbar: {
+    backgroundColor: theme.colors.primary,
   },
   content: {
     padding: 16,
@@ -166,8 +214,9 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     marginBottom: 16,
     backgroundColor: theme.colors.surface,
-    padding: 8,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 12,
+    elevation: 5, 
   },
   text: {
     color: theme.colors.text,
@@ -178,6 +227,9 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 16,
     backgroundColor: theme.colors.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
   },
   fab: {
     position: 'absolute',
